@@ -1,0 +1,396 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#3B6D11;--gbg:#EAF3DE;--gbd:#639922;--orange:#854F0B;--obg:#FAEEDA;--obd:#BA7517;--gold:#B8860B;--goldbg:#FFF8DC;--goldbd:#DAA520}
+.app{max-width:680px;margin:0 auto;padding:10px;font-family:var(--font-sans)}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hdr h1{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.hdr-btns{display:flex;gap:6px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px;text-align:center}
+.stat-n{font-size:18px;font-weight:500}
+.stat-l{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.prog{height:4px;background:var(--color-background-secondary);border-radius:2px;margin-bottom:10px;overflow:hidden}
+.prog-f{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.toolbar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+.search{flex:1;min-width:120px;padding:6px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.search:focus{outline:none;border-color:var(--color-border-primary)}
+.fbtn{padding:5px 10px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);font-size:12px;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap;transition:all .15s}
+.fbtn.on{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none;align-items:center}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:5px 10px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);font-size:11px;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap;transition:all .15s}
+.tab.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.grp-sep{flex-shrink:0;font-size:10px;color:var(--color-text-secondary);padding:0 2px;align-self:center}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.sec-sub{font-size:11px;color:var(--color-text-secondary)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px}
+.stk{border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;user-select:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;aspect-ratio:0.72}
+.stk:active{transform:scale(0.9)}
+.stk.landscape{grid-column:span 2;aspect-ratio:1.6;flex-direction:row;gap:8px}
+.stk.have{background:var(--gbg);border-color:var(--gbd)}
+.stk.dupe{background:var(--obg);border-color:var(--obd)}
+.stk.shine{border:1.5px solid var(--goldbd);background:var(--goldbg)}
+.stk.shine.have{background:var(--gbg);border-color:var(--gold)}
+.stk.shine.dupe{background:var(--obg);border-color:var(--gold)}
+.shine-star{position:absolute;top:3px;right:3px;font-size:9px;color:var(--gold)}
+.stk-num{font-size:11px;font-weight:500;color:var(--color-text-secondary)}
+.stk-ico{font-size:14px;min-height:15px}
+.stk-lbl{font-size:9px;color:var(--color-text-secondary);margin-top:1px}
+.stk.have .stk-num,.stk.have .stk-lbl{color:var(--green)}
+.stk.dupe .stk-num,.stk.dupe .stk-lbl{color:var(--orange)}
+.stk.landscape .stk-num{font-size:12px}
+.stk.landscape .stk-lbl{font-size:10px}
+.hidden-f{display:none!important}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);font-size:12px;color:var(--color-text-primary);cursor:pointer;white-space:nowrap;transition:all .15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px;display:none}
+.panel.open{display:block}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.panel-hdr h2{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.panel-hdr button{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:16px;line-height:1}
+.txt-out{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;font-size:12px;color:var(--color-text-primary);white-space:pre-wrap;word-break:break-all;line-height:1.7;max-height:180px;overflow-y:auto;margin-bottom:8px;border:0.5px solid var(--color-border-tertiary)}
+.textarea{width:100%;min-height:90px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:9px;font-size:12px;font-family:var(--font-sans);color:var(--color-text-primary);background:var(--color-background-secondary);resize:vertical;margin-bottom:8px}
+.textarea:focus{outline:none;border-color:var(--color-border-primary)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge.g{background:var(--gbg);color:var(--green)}
+.badge.r{background:#FCEBEB;color:#A32D2D}
+.badge.o{background:var(--obg);color:var(--orange)}
+.rlist{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;color:var(--color-text-secondary);line-height:1.8;border:0.5px solid var(--color-border-tertiary);margin-top:5px;margin-bottom:10px}
+.fb{font-size:11px;color:var(--green);min-height:16px;margin-top:4px}
+.legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.leg-d{width:12px;height:12px;border-radius:3px}
+</style>
+
+<div class="app">
+<div class="hdr">
+  <h1><i class="ti ti-tournament" aria-hidden="true" style="margin-right:5px"></i>Copa 2026</h1>
+  <div class="hdr-btns">
+    <button class="btn" onclick="togglePanel('dupes')"><i class="ti ti-copy" aria-hidden="true"></i>Repetidas</button>
+    <button class="btn" onclick="togglePanel('friend')"><i class="ti ti-users" aria-hidden="true"></i>Amigo</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n" style="color:var(--green)" id="s-have">0</div><div class="stat-l">tenho</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--orange)" id="s-dupe">0</div><div class="stat-l">repetidas</div></div>
+  <div class="stat"><div class="stat-n" style="color:#185FA5" id="s-miss">980</div><div class="stat-l">faltam</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--color-text-primary)" id="s-pct">0%</div><div class="stat-l">completo</div></div>
+</div>
+<div class="prog"><div class="prog-f" id="prog"></div></div>
+
+<div class="panel" id="panel-dupes">
+  <div class="panel-hdr"><h2><i class="ti ti-copy" aria-hidden="true" style="margin-right:5px"></i>Minhas repetidas</h2><button onclick="togglePanel('dupes')"><i class="ti ti-x"></i></button></div>
+  <div class="txt-out" id="dupes-out">Nenhuma repetida marcada ainda.</div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn primary" onclick="copyDupes()"><i class="ti ti-clipboard" aria-hidden="true"></i>Copiar pra WhatsApp</button>
+    <div class="fb" id="fb-dupes"></div>
+  </div>
+</div>
+
+<div class="panel" id="panel-friend">
+  <div class="panel-hdr"><h2><i class="ti ti-users" aria-hidden="true" style="margin-right:5px"></i>Lista do amigo</h2><button onclick="togglePanel('friend')"><i class="ti ti-x"></i></button></div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Cole a lista que seu amigo mandou. Formato livre — o app interpreta automaticamente, mesmo com erros de digitação.</p>
+  <textarea class="textarea" id="friend-input" placeholder="CZE: 4,9&#10;BRA:3,7,12&#10;FWC:1&#10;NED:7,11,11,12&#10;..."></textarea>
+  <button class="btn primary" onclick="compareFriend()"><i class="ti ti-search" aria-hidden="true"></i>Comparar</button>
+  <div id="friend-result"></div>
+</div>
+
+<div class="toolbar">
+  <input class="search" type="text" placeholder="Buscar seleção..." id="search-inp" oninput="filterTabs()">
+  <button class="fbtn on" id="f-all" onclick="setFilter('all')">Todas</button>
+  <button class="fbtn" id="f-have" onclick="setFilter('have')">Tenho</button>
+  <button class="fbtn" id="f-miss" onclick="setFilter('miss')">Faltam</button>
+  <button class="fbtn" id="f-dupe" onclick="setFilter('dupe')">Repetidas</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="legend">
+  <div class="leg-i"><div class="leg-d" style="background:var(--gbg);border:1px solid var(--gbd)"></div>Tenho</div>
+  <div class="leg-i"><div class="leg-d" style="background:var(--obg);border:1px solid var(--obd)"></div>Repetida</div>
+  <div class="leg-i"><div class="leg-d" style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary)"></div>Não tenho</div>
+  <div class="leg-i"><div class="leg-d" style="background:var(--goldbg);border:1.5px solid var(--goldbd)"></div>Brilhante</div>
+  <div class="leg-i"><div class="leg-d" style="border-radius:2px;background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);aspect-ratio:1.6;width:18px;height:11px"></div>Foto do time</div>
+</div>
+
+<div id="grid-area"></div>
+</div>
+
+<script>
+const SECTIONS=[
+
+
+  {code:"FWC",name:"Especiais FWC",group:"★",count:8,shiny:[1,2,3,4,5,6,7,8],landscape:[]},
+  {code:"MEX",name:"México",group:"A",count:20,shiny:[1],landscape:[13]},
+  {code:"RSA",name:"África do Sul",group:"A",count:20,shiny:[1],landscape:[13]},
+  {code:"KOR",name:"Coreia do Sul",group:"A",count:20,shiny:[1],landscape:[13]},
+  {code:"CZE",name:"Rep. Tcheca",group:"A",count:20,shiny:[1],landscape:[13]},
+  
+  {code:"CAN",name:"Canadá",group:"B",count:20,shiny:[1],landscape:[13]},
+  {code:"BIH",name:"Bósnia-Herz.",group:"B",count:20,shiny:[1],landscape:[13]},
+  {code:"QAT",name:"Catar",group:"B",count:20,shiny:[1],landscape:[13]},
+  {code:"SUI",name:"Suíça",group:"B",count:20,shiny:[1],landscape:[13]},
+
+  {code:"BRA",name:"Brasil",group:"C",count:20,shiny:[1],landscape:[13]},
+  {code:"MAR",name:"Marrocos",group:"C",count:20,shiny:[1],landscape:[13]},
+  {code:"HAI",name:"Haiti",group:"C",count:20,shiny:[1],landscape:[13]},
+  {code:"SCO",name:"Escócia",group:"C",count:20,shiny:[1],landscape:[13]},
+ 
+  {code:"USA",name:"Estados Unidos",group:"D",count:20,shiny:[1],landscape:[13]},
+  {code:"PAR",name:"Paraguai",group:"D",count:20,shiny:[1],landscape:[13]},
+  {code:"AUS",name:"Austrália",group:"D",count:20,shiny:[1],landscape:[13]},
+  {code:"TUR",name:"Turquia",group:"D",count:20,shiny:[1],landscape:[13]},
+
+  {code:"GER",name:"Alemanha",group:"E",count:20,shiny:[1],landscape:[13]},
+  {code:"CUW",name:"Curaçao",group:"E",count:20,shiny:[1],landscape:[13]},
+  {code:"CIV",name:"Costa do Marfim",group:"E",count:20,shiny:[1],landscape:[13]},
+  {code:"ECU",name:"Equador",group:"E",count:20,shiny:[1],landscape:[13]},
+
+  {code:"NED",name:"Holanda",group:"F",count:20,shiny:[1],landscape:[13]},
+  {code:"JPN",name:"Japão",group:"F",count:20,shiny:[1],landscape:[13]},
+  {code:"SWE",name:"Suécia",group:"F",count:20,shiny:[1],landscape:[13]},
+  {code:"TUN",name:"Tunísia",group:"F",count:20,shiny:[1],landscape:[13]},
+
+  {code:"BEL",name:"Bélgica",group:"G",count:20,shiny:[1],landscape:[13]},
+  {code:"EGY",name:"Egito",group:"G",count:20,shiny:[1],landscape:[13]},
+  {code:"IRN",name:"Irã",group:"G",count:20,shiny:[1],landscape:[13]},
+  {code:"NZL",name:"Nova Zelândia",group:"G",count:20,shiny:[1],landscape:[13]},
+
+  {code:"ESP",name:"Espanha",group:"H",count:20,shiny:[1],landscape:[13]},
+  {code:"CPV",name:"Cabo Verde",group:"H",count:20,shiny:[1],landscape:[13]},
+  {code:"KSA",name:"Arábia Saudita",group:"H",count:20,shiny:[1],landscape:[13]},
+  {code:"URU",name:"Uruguai",group:"H",count:20,shiny:[1],landscape:[13]},
+
+  {code:"FRA",name:"França",group:"I",count:20,shiny:[1],landscape:[13]},
+  {code:"SEN",name:"Senegal",group:"I",count:20,shiny:[1],landscape:[13]},
+  {code:"IRQ",name:"Iraque",group:"I",count:20,shiny:[1],landscape:[13]},
+  {code:"NOR",name:"Noruega",group:"I",count:20,shiny:[1],landscape:[13]},
+
+  {code:"ARG",name:"Argentina",group:"J",count:20,shiny:[1],landscape:[13]},
+  {code:"ALG",name:"Argélia",group:"J",count:20,shiny:[1],landscape:[13]},
+  {code:"AUT",name:"Áustria",group:"J",count:20,shiny:[1],landscape:[13]},
+  {code:"JOR",name:"Jordânia",group:"J",count:20,shiny:[1],landscape:[13]},
+
+  {code:"POR",name:"Portugal",group:"K",count:20,shiny:[1],landscape:[13]},
+  {code:"COD",name:"RD Congo",group:"K",count:20,shiny:[1],landscape:[13]},
+  {code:"UZB",name:"Uzbequistão",group:"K",count:20,shiny:[1],landscape:[13]},
+  {code:"COL",name:"Colômbia",group:"K",count:20,shiny:[1],landscape:[13]},
+  
+  {code:"ENG",name:"Inglaterra",group:"L",count:20,shiny:[1],landscape:[13]},
+  {code:"CRO",name:"Croácia",group:"L",count:20,shiny:[1],landscape:[13]},
+  {code:"GHA",name:"Gana",group:"L",count:20,shiny:[1],landscape:[13]},
+  {code:"PAN",name:"Panamá",group:"L",count:20,shiny:[1],landscape:[13]},
+
+  {code:"FWC",name:"Especiais FWC History",group:"★",count:1,shiny:[9,10,11,12,13,14,15,16.17,18],landscape:[]},
+];
+
+const ALIASES={
+  "SAU":"KSA","KSA":"KSA","TCH":"CZE","CZE":"CZE","BOS":"BIH","BIH":"BIH",
+  "CUR":"CUW","CUW":"CUW","CPV":"CPV","COD":"COD","RDC":"COD","HAI":"HAI",
+  "HTI":"HAI","SCO":"SCO","CRO":"CRO","HRV":"CRO","SUI":"SUI","SWE":"SWE",
+  "SUE":"SWE","TUR":"TUR","JOR":"JOR","NOR":"NOR","ALG":"ALG","DZA":"ALG",
+  "MAR":"MAR","MOR":"MAR","IRN":"IRN","IRA":"IRN","IRAN":"IRN","IRQ":"IRQ",
+  "ENG":"ENG","ING":"ENG","ESP":"ESP","SPA":"ESP","GER":"GER","DEU":"GER",
+  "ALE":"GER","NED":"NED","HOL":"NED","BEL":"BEL","URU":"URU","ARG":"ARG",
+  "BRA":"BRA","FRA":"FRA","POR":"POR","PRT":"POR","COL":"COL","MEX":"MEX",
+  "USA":"USA","EUA":"USA","CAN":"CAN","AUS":"AUS","JPN":"JPN","JAP":"JPN",
+  "KOR":"KOR","QAT":"QAT","CAT":"QAT","SEN":"SEN","EGY":"EGY","EGI":"EGY",
+  "GHA":"GHA","TUN":"TUN","RSA":"RSA","CIV":"CIV","NZL":"NZL","ECU":"ECU",
+  "PAR":"PAR","PRY":"PAR","UZB":"UZB","AUT":"AUT","PAN":"PAN","FWC":"FWC",
+  "MUS":"MUS","SOMOS":"SOMOS","SWI":"SUI","GBR":"ENG",
+};
+
+const CODE_SET=new Set(SECTIONS.map(s=>s.code));
+function resolveCode(raw){
+  const u=raw.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(CODE_SET.has(u))return u;
+  if(ALIASES[u])return ALIASES[u];
+  for(const s of SECTIONS){if(s.name.toUpperCase().replace(/[^A-Z]/g,'').includes(u)&&u.length>=3)return s.code;}
+  return null;
+}
+
+function smartNums(raw){
+  const nums=[];
+  const parts=raw.replace(/[^\d,\s]/g,'').split(/[\s,]+/).filter(Boolean);
+  for(const p of parts){
+    if(p.length<=2){const n=parseInt(p);if(n>=1&&n<=20)nums.push(n);}
+    else{
+      const str=p.toString();let i=0;
+      while(i<str.length){
+        if(i<=str.length-2){const two=parseInt(str.slice(i,i+2));if(two>=1&&two<=20){nums.push(two);i+=2;continue;}}
+        const one=parseInt(str[i]);if(one>=1&&one<=9)nums.push(one);
+        i++;
+      }
+    }
+  }
+  return [...new Set(nums)].sort((a,b)=>a-b);
+}
+
+let state={};
+let activeCode=SECTIONS[0].code;
+let activeFilter='all';
+
+function load(){try{state=JSON.parse(localStorage.getItem('copa26v3')||'{}')}catch(e){state={}}}
+function save(){try{localStorage.setItem('copa26v3',JSON.stringify(state))}catch(e){}}
+function key(c,n){return c+':'+n}
+function getS(c,n){return state[key(c,n)]||0}
+
+function cycle(code,n){
+  const k=key(code,n);const c=state[k]||0;
+  if(c===0)state[k]=1;else if(c===1)state[k]=2;else delete state[k];
+  save();refreshStk(code,n);updateStats();
+  if(document.getElementById('panel-dupes').classList.contains('open'))updateDupesOut();
+}
+
+function refreshStk(code,n){
+  const el=document.getElementById('stk-'+code+'-'+n);if(!el)return;
+  const s=getS(code,n);const sec=SECTIONS.find(x=>x.code===code);
+  const shine=sec.shiny.includes(n);const land=sec.landscape.includes(n);
+  el.className='stk'+(land?' landscape':'')+(shine?' shine':'')+(s===1?' have':s===2?' dupe':'');
+  el.querySelector('.stk-ico').textContent=s===1?'✓':s===2?'★':'';
+  applyFilter(el,s);
+}
+
+function applyFilter(el,s){
+  const show=(activeFilter==='all')||(activeFilter==='have'&&s===1)||(activeFilter==='miss'&&s===0)||(activeFilter==='dupe'&&s===2);
+  el.classList.toggle('hidden-f',!show);
+}
+
+function setFilter(f){
+  activeFilter=f;
+  ['all','have','miss','dupe'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
+  renderGrid();
+}
+
+function updateStats(){
+  let have=0,dupe=0;
+  Object.values(state).forEach(v=>{if(v===1)have++;else if(v===2)dupe++;});
+  document.getElementById('s-have').textContent=have;
+  document.getElementById('s-dupe').textContent=dupe;
+  document.getElementById('s-miss').textContent=980-have;
+  const pct=Math.round(have/9.8);
+  document.getElementById('s-pct').textContent=pct+'%';
+  document.getElementById('prog').style.width=pct+'%';
+}
+
+function filterTabs(){
+  const q=document.getElementById('search-inp').value.toLowerCase();
+  document.querySelectorAll('.tab').forEach(t=>{
+    const s=SECTIONS.find(x=>x.code===t.dataset.code);
+    t.style.display=(!q||s.name.toLowerCase().includes(q)||t.dataset.code.toLowerCase().includes(q))?'':'none';
+  });
+}
+
+function renderTabs(){
+  const tb=document.getElementById('tabs');tb.innerHTML='';
+  const groups=[...new Set(SECTIONS.map(s=>s.group))];
+  groups.forEach(g=>{
+    const sep=document.createElement('span');
+    sep.className='grp-sep';sep.textContent=g==='★'?'★':'Gr '+g;
+    tb.appendChild(sep);
+    SECTIONS.filter(s=>s.group===g).forEach(s=>{
+      const b=document.createElement('button');
+      b.className='tab'+(s.code===activeCode?' active':'');
+      b.dataset.code=s.code;b.textContent=s.code;b.title=s.name;
+      b.onclick=()=>{activeCode=s.code;renderTabs();renderGrid();};
+      tb.appendChild(b);
+    });
+  });
+}
+
+function renderGrid(){
+  const sec=SECTIONS.find(s=>s.code===activeCode);
+  const haveC=Object.keys(state).filter(k=>k.startsWith(activeCode+':')&&state[k]===1).length;
+  const dupeC=Object.keys(state).filter(k=>k.startsWith(activeCode+':')&&state[k]===2).length;
+  document.getElementById('grid-area').innerHTML=
+    `<div class="sec-hdr"><div class="sec-title">${sec.name} <span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">(${sec.count})</span></div><div class="sec-sub">${haveC} tenho · ${dupeC} repetidas</div></div><div class="grid" id="stk-grid"></div>`;
+  const grid=document.getElementById('stk-grid');
+  for(let i=1;i<=sec.count;i++){
+    const s=getS(activeCode,i);
+    const shine=sec.shiny.includes(i);
+    const land=sec.landscape.includes(i);
+    const d=document.createElement('div');
+    d.className='stk'+(land?' landscape':'')+(shine?' shine':'')+(s===1?' have':s===2?' dupe':'');
+    d.id='stk-'+activeCode+'-'+i;
+    let lbl='';
+    if(i===1&&sec.count>1)lbl='brasão';
+    else if(land)lbl='foto do time';
+    d.innerHTML=`${shine?`<span class="shine-star"><i class="ti ti-star" style="font-size:9px"></i></span>`:''}
+<div class="stk-ico">${s===1?'✓':s===2?'★':''}</div>
+<div class="stk-num">${activeCode} ${i}</div>
+${lbl?`<div class="stk-lbl">${lbl}</div>`:''}`;
+    applyFilter(d,s);
+    d.onclick=(()=>{const n=i,c=activeCode;return()=>cycle(c,n)})();
+    grid.appendChild(d);
+  }
+}
+
+function updateDupesOut(){
+  const parts=[];
+  SECTIONS.forEach(s=>{
+    const nums=[];
+    for(let i=1;i<=s.count;i++){if(getS(s.code,i)===2)nums.push(i);}
+    if(nums.length)parts.push(s.code+': '+nums.join(', '));
+  });
+  document.getElementById('dupes-out').textContent=parts.length?'Minhas repetidas Copa 2026:\n'+parts.join('\n'):'Nenhuma repetida marcada ainda.';
+}
+
+function copyDupes(){
+  const txt=document.getElementById('dupes-out').textContent;
+  if(txt.startsWith('Nenhuma'))return;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const fb=document.getElementById('fb-dupes');fb.textContent='✓ Copiado!';
+    setTimeout(()=>fb.textContent='',2500);
+  }).catch(()=>document.getElementById('fb-dupes').textContent='Selecione e copie manualmente.');
+}
+
+function parseList(txt){
+  const result={};
+  txt.split(/\n/).forEach(line=>{
+    line=line.trim();if(!line)return;
+    const m=line.match(/^([A-Za-z]{2,6})\s*[:\-]?\s*(.*)$/);
+    if(!m)return;
+    const code=resolveCode(m[1]);if(!code)return;
+    const nums=smartNums(m[2]||'');
+    if(nums.length)result[code]=(result[code]||[]).concat(nums);
+  });
+  return result;
+}
+
+function compareFriend(){
+  const txt=document.getElementById('friend-input').value.trim();
+  if(!txt){document.getElementById('friend-result').innerHTML='<p style="font-size:12px;color:var(--color-text-secondary);margin-top:8px">Cole a lista do amigo acima.</p>';return;}
+  const needs=parseList(txt);
+  let give=[],notHave=[],unknown=[];
+  Object.keys(needs).forEach(code=>{
+    if(!CODE_SET.has(code)){unknown.push(code);return;}
+    needs[code].forEach(n=>{
+      (getS(code,n)===2?give:notHave).push(code+'-'+n);
+    });
+  });
+  let html='<div style="margin-top:12px">';
+  if(give.length)html+=`<span class="badge g"><i class="ti ti-check" aria-hidden="true"></i>Você tem de repetida (${give.length})</span><div class="rlist" style="color:var(--green)">${give.join('  ')}</div>`;
+  if(notHave.length)html+=`<span class="badge r"><i class="ti ti-x" aria-hidden="true"></i>Você não tem (${notHave.length})</span><div class="rlist">${notHave.join('  ')}</div>`;
+  if(unknown.length)html+=`<span class="badge o"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Não reconhecidos: ${unknown.join(', ')}</span>`;
+  if(!give.length&&!notHave.length&&!unknown.length)html+='<p style="font-size:12px;color:var(--color-text-secondary)">Nada reconhecido. Verifique o formato.</p>';
+  html+='</div>';
+  document.getElementById('friend-result').innerHTML=html;
+}
+
+function togglePanel(p){
+  const el=document.getElementById('panel-'+p);
+  const other=p==='dupes'?'friend':'dupes';
+  document.getElementById('panel-'+other).classList.remove('open');
+  el.classList.toggle('open');
+  if(el.classList.contains('open')){
+    if(p==='dupes')updateDupesOut();
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+load();renderTabs();renderGrid();updateStats();
+</script>
