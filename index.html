@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Zap Stickers">
+<meta name="theme-color" content="#0A0A0A">
+<title>Zap Stickers · Copa 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0A0A;--bg2:#141414;--bg3:#1E1E1E;--bg4:#282828;
+  --border:#2E2E2E;--border2:#3A3A3A;
+  --text:#F0F0F0;--text2:#A0A0A0;--text3:#606060;
+  --green:#4CAF50;--gbg:#0D2E0F;--gbd:#2E7D32;
+  --orange:#FF8F00;--obg:#2E1A00;--obd:#E65100;
+  --gold:#FFD600;--goldbg:#1A1500;--goldbd:#F9A825;
+  --red:#FF1744;--redbg:#2A0009;
+  --blue:#42A5F5;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
+.app{max-width:680px;margin:0 auto;padding:12px;min-height:100vh;background:var(--bg)}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.hdr-title{display:flex;align-items:center;gap:8px}
+.hdr-title h1{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.4px}
+.hdr-btns{display:flex;gap:6px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.stat{background:var(--bg2);border-radius:10px;padding:9px 6px;text-align:center;border:1px solid var(--border)}
+.stat-n{font-size:20px;font-weight:700}
+.stat-l{font-size:10px;color:var(--text2);margin-top:1px}
+.prog{height:4px;background:var(--bg3);border-radius:2px;margin-bottom:14px;overflow:hidden}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--green),#81C784);border-radius:2px;transition:width .4s ease}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.panel.open{display:block}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.panel-hdr h2{font-size:14px;font-weight:600;color:var(--text)}
+.panel-hdr button{background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;line-height:1;padding:0}
+.txt-out{background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.7;max-height:160px;overflow-y:auto;margin-bottom:8px;border:1px solid var(--border);font-family:monospace}
+.textarea{width:100%;min-height:90px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;font-family:system-ui;color:var(--text);background:var(--bg3);resize:vertical;margin-bottom:10px}
+.textarea:focus{outline:none;border-color:var(--blue)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.g{background:var(--gbg);color:var(--green)}
+.badge.r{background:var(--redbg);color:var(--red)}
+.badge.o{background:var(--obg);color:var(--orange)}
+.rlist{background:var(--bg3);border-radius:8px;padding:8px 12px;font-size:12px;line-height:1.9;border:1px solid var(--border);margin-top:5px;margin-bottom:10px;word-break:break-all;color:var(--text2)}
+.fb{font-size:11px;color:var(--green);min-height:16px;margin-top:6px}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.home{display:block}
+.home.hidden{display:none}
+.group-block{margin-bottom:20px}
+.group-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;padding-left:2px}
+.team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.team-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.team-card:hover{border-color:var(--border2);background:var(--bg3)}
+.team-card:active{transform:scale(.97)}
+.team-left{display:flex;align-items:center;gap:8px;min-width:0}
+.team-code{font-size:10px;font-weight:700;color:var(--text2);background:var(--bg3);border-radius:5px;padding:2px 6px;flex-shrink:0;letter-spacing:.4px;border:1px solid var(--border)}
+.team-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.team-prog{width:32px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.team-prog-f{height:100%;background:var(--green);border-radius:2px}
+.team-miss{font-size:11px;font-weight:600;white-space:nowrap}
+.team-miss.done{color:var(--green)}
+.team-miss.pending{color:var(--red)}
+.detail{display:none}
+.detail.open{display:block}
+.detail-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
+.back-btn:hover{background:var(--bg3);color:var(--text)}
+.detail-title{font-size:15px;font-weight:600;color:var(--text)}
+.detail-sub{font-size:11px;color:var(--text2);margin-left:auto;white-space:nowrap}
+.toolbar{display:flex;gap:6px;margin-bottom:12px;align-items:center}
+.search{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;background:var(--bg2);color:var(--text)}
+.search:focus{outline:none;border-color:var(--blue)}
+.search::placeholder{color:var(--text3)}
+.filters{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.fbtn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s}
+.fbtn:hover{border-color:var(--border2);color:var(--text)}
+.fbtn.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.leg-d{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px}
+.stk{border-radius:9px;border:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s;user-select:none;-webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;aspect-ratio:.72;padding:4px}
+.stk:active{transform:scale(.88)}
+.stk.landscape{grid-column:span 2;aspect-ratio:1.55;flex-direction:row;gap:6px}
+.stk.have{background:var(--gbg);border-color:var(--gbd)}
+.stk.dupe1{background:var(--obg);border-color:var(--obd)}
+.stk.dupe2{background:#1A0E00;border-color:var(--gold);border-width:1.5px}
+.stk.shine:not(.have):not(.dupe1):not(.dupe2){background:var(--goldbg);border-color:var(--goldbd)}
+.stk.shine.have{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.stk.shine.dupe1,.stk.shine.dupe2{border-color:var(--gold)}
+.shine-star{position:absolute;top:3px;right:3px;font-size:9px;color:var(--gold)}
+.stk-num{font-size:11px;font-weight:600;color:var(--text3);line-height:1}
+.stk-ico{font-size:15px;min-height:18px;line-height:1;display:flex;align-items:center;justify-content:center}
+.stk-lbl{font-size:8px;color:var(--text3);margin-top:1px;text-align:center;line-height:1.2}
+.stk-cnt{position:absolute;bottom:3px;right:4px;font-size:9px;font-weight:700;background:var(--orange);color:#000;border-radius:4px;padding:1px 4px;line-height:1.3;display:none}
+.stk.dupe2 .stk-cnt{background:var(--gold)}
+.stk.have .stk-num,.stk.have .stk-lbl{color:var(--green)}
+.stk.dupe1 .stk-num,.stk.dupe1 .stk-lbl{color:var(--orange)}
+.stk.dupe2 .stk-num,.stk.dupe2 .stk-lbl{color:var(--gold)}
+.hidden-f{display:none!important}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg2);font-size:13px;color:var(--text);cursor:pointer;white-space:nowrap;transition:all .15s;font-weight:500}
+.btn:hover{background:var(--bg3);border-color:var(--border2)}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.primary:hover{opacity:.88}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.danger{border-color:#5a1a1a;color:var(--red)}
+.btn.danger:hover{background:#1a0000}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.footer-back{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(transparent,var(--bg) 40%);display:flex;justify-content:center;margin-top:8px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="hdr-title">
+    <span style="font-size:22px">📒</span>
+    <h1>Zap Stickers</h1>
+  </div>
+  <div class="hdr-btns">
+    <button class="btn sm" onclick="togglePanel('dupes')">📋 Repetidas</button>
+    <button class="btn sm" onclick="togglePanel('friend')">👥 Amigo</button>
+    <button class="btn sm" onclick="togglePanel('backup')">💾 Backup</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n" style="color:var(--green)" id="s-have">0</div><div class="stat-l">tenho</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--orange)" id="s-dupe">0</div><div class="stat-l">repetidas</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--red)" id="s-miss">993</div><div class="stat-l">faltam</div></div>
+  <div class="stat"><div class="stat-n" style="color:var(--text)" id="s-pct">0%</div><div class="stat-l">completo</div></div>
+</div>
+<div class="prog"><div class="prog-f" id="prog" style="width:0%"></div></div>
+
+<!-- PANEL REPETIDAS -->
+<div class="panel" id="panel-dupes">
+  <div class="panel-hdr"><h2>📋 Minhas repetidas</h2><button onclick="togglePanel('dupes')">✕</button></div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:6px">Lista completa (com quantidade)</p>
+  <div class="txt-out" id="dupes-full">Nenhuma repetida marcada ainda.</div>
+  <div class="row" style="margin-bottom:12px">
+    <button class="btn primary sm" onclick="copyText('dupes-full','fb-full')">📎 Copiar completa</button>
+    <div class="fb" id="fb-full"></div>
+  </div>
+  <div class="divider"></div>
+  <p style="font-size:11px;color:var(--text2);margin:10px 0 6px">Lista simples pra WhatsApp</p>
+  <div class="txt-out" id="dupes-simple">Nenhuma repetida marcada ainda.</div>
+  <div class="row">
+    <button class="btn primary sm" onclick="copyText('dupes-simple','fb-simple')">📎 Copiar pra WhatsApp</button>
+    <div class="fb" id="fb-simple"></div>
+  </div>
+</div>
+
+<!-- PANEL AMIGO -->
+<div class="panel" id="panel-friend">
+  <div class="panel-hdr"><h2>👥 Lista do amigo</h2><button onclick="togglePanel('friend')">✕</button></div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Cole a lista que seu amigo mandou. O app interpreta automaticamente, mesmo com erros de digitação.</p>
+  <textarea class="textarea" id="friend-input" placeholder="CZE: 4,9&#10;BRA:3,7,12&#10;FWC:1&#10;..."></textarea>
+  <button class="btn primary" onclick="compareFriend()">🔍 Comparar</button>
+  <div id="friend-result"></div>
+</div>
+
+<!-- PANEL BACKUP -->
+<div class="panel" id="panel-backup">
+  <div class="panel-hdr"><h2>💾 Backup</h2><button onclick="togglePanel('backup')">✕</button></div>
+
+  <p style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px">📤 Exportar</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Salva todos os seus dados em um arquivo JSON. Faça isso antes de qualquer atualização.</p>
+  <div class="row" style="margin-bottom:14px">
+    <button class="btn primary" onclick="exportJSON()">📤 Exportar JSON</button>
+    <div class="fb" id="fb-export"></div>
+  </div>
+
+  <div class="divider"></div>
+  <p style="font-size:12px;font-weight:600;color:var(--text);margin:10px 0 6px">📥 Importar JSON</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Restaura um backup exportado anteriormente. <strong style="color:var(--red)">Sobrescreve todos os dados atuais.</strong></p>
+  <div class="row" style="margin-bottom:14px">
+    <button class="btn" onclick="document.getElementById('import-json-file').click()">📂 Escolher arquivo JSON</button>
+    <input type="file" id="import-json-file" accept=".json" style="display:none" onchange="importJSON(this)">
+    <div class="fb" id="fb-import-json"></div>
+  </div>
+
+  <div class="divider"></div>
+  <p style="font-size:12px;font-weight:600;color:var(--text);margin:10px 0 6px">📋 Importar lista de repetidas</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Cole a lista no formato <code>BRA: 2(×1), 6(×2+)</code> — marca automaticamente como repetidas.</p>
+  <textarea class="textarea" id="import-list-txt" placeholder="RSA: 3(×2+), 7(×1)&#10;CAN: 11(×1), 12(×1)&#10;BRA: 2(×1)&#10;..."></textarea>
+  <div class="row" style="margin-bottom:14px">
+    <button class="btn primary" onclick="importList()">✅ Importar lista</button>
+    <div class="fb" id="fb-import-list"></div>
+  </div>
+
+  <div class="divider"></div>
+  <p style="font-size:12px;font-weight:600;color:var(--red);margin:10px 0 6px">⚠ Zerar tudo</p>
+  <button class="btn danger" onclick="resetAll()">🗑 Apagar todos os dados</button>
+</div>
+
+<!-- HOME -->
+<div class="home" id="home-view">
+  <div class="toolbar">
+    <input class="search" type="text" placeholder="Buscar seleção..." id="search-inp" oninput="renderHome()">
+  </div>
+  <div id="home-content"></div>
+</div>
+
+<!-- DETAIL -->
+<div class="detail" id="detail-view">
+  <div class="detail-hdr">
+    <button class="back-btn" onclick="goHome()">← Voltar</button>
+    <div><div class="detail-title" id="detail-title"></div></div>
+    <div class="detail-sub" id="detail-sub"></div>
+  </div>
+  <div class="filters">
+    <button class="fbtn on" id="f-all" onclick="setFilter('all')">Todas</button>
+    <button class="fbtn" id="f-have" onclick="setFilter('have')">Tenho</button>
+    <button class="fbtn" id="f-miss" onclick="setFilter('miss')">Faltam</button>
+    <button class="fbtn" id="f-dupe" onclick="setFilter('dupe')">Repetidas</button>
+  </div>
+  <div class="legend">
+    <div class="leg-i"><div class="leg-d" style="background:var(--gbg);border:1px solid var(--gbd)"></div>Tenho</div>
+    <div class="leg-i"><div class="leg-d" style="background:var(--obg);border:1px solid var(--obd)"></div>Repetida ×1</div>
+    <div class="leg-i"><div class="leg-d" style="background:#1A0E00;border:1.5px solid var(--gold)"></div>Repetida ×2+</div>
+    <div class="leg-i"><div class="leg-d" style="background:var(--goldbg);border:1.5px solid var(--goldbd)"></div>Brilhante</div>
+  </div>
+  <div class="grid" id="stk-grid"></div>
+  <div class="footer-back">
+    <button class="back-btn" onclick="goHome()">← Voltar para seleções</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const SECTIONS=[
+  {code:"FWC",viewCode:"FWC",name:"FWC · Especiais",group:"★",rangeMin:1,rangeMax:8,shiny:[1,2,3,4,5,6,7,8],landscape:[]},
+  {code:"MEX",viewCode:"MEX",name:"México",group:"A",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"RSA",viewCode:"RSA",name:"África do Sul",group:"A",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"KOR",viewCode:"KOR",name:"Coreia do Sul",group:"A",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CZE",viewCode:"CZE",name:"Rep. Tcheca",group:"A",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CAN",viewCode:"CAN",name:"Canadá",group:"B",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"BIH",viewCode:"BIH",name:"Bósnia-Herz.",group:"B",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"QAT",viewCode:"QAT",name:"Catar",group:"B",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"SUI",viewCode:"SUI",name:"Suíça",group:"B",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"BRA",viewCode:"BRA",name:"Brasil",group:"C",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"MAR",viewCode:"MAR",name:"Marrocos",group:"C",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"HAI",viewCode:"HAI",name:"Haiti",group:"C",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"SCO",viewCode:"SCO",name:"Escócia",group:"C",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"USA",viewCode:"USA",name:"Estados Unidos",group:"D",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"PAR",viewCode:"PAR",name:"Paraguai",group:"D",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"AUS",viewCode:"AUS",name:"Austrália",group:"D",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"TUR",viewCode:"TUR",name:"Turquia",group:"D",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"GER",viewCode:"GER",name:"Alemanha",group:"E",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CUW",viewCode:"CUW",name:"Curaçao",group:"E",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CIV",viewCode:"CIV",name:"Costa do Marfim",group:"E",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"ECU",viewCode:"ECU",name:"Equador",group:"E",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"NED",viewCode:"NED",name:"Holanda",group:"F",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"JPN",viewCode:"JPN",name:"Japão",group:"F",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"SWE",viewCode:"SWE",name:"Suécia",group:"F",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"TUN",viewCode:"TUN",name:"Tunísia",group:"F",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"BEL",viewCode:"BEL",name:"Bélgica",group:"G",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"EGY",viewCode:"EGY",name:"Egito",group:"G",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"IRN",viewCode:"IRN",name:"Irã",group:"G",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"NZL",viewCode:"NZL",name:"Nova Zelândia",group:"G",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"ESP",viewCode:"ESP",name:"Espanha",group:"H",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CPV",viewCode:"CPV",name:"Cabo Verde",group:"H",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"KSA",viewCode:"KSA",name:"Arábia Saudita",group:"H",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"URU",viewCode:"URU",name:"Uruguai",group:"H",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"FRA",viewCode:"FRA",name:"França",group:"I",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"SEN",viewCode:"SEN",name:"Senegal",group:"I",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"IRQ",viewCode:"IRQ",name:"Iraque",group:"I",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"NOR",viewCode:"NOR",name:"Noruega",group:"I",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"ARG",viewCode:"ARG",name:"Argentina",group:"J",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"ALG",viewCode:"ALG",name:"Argélia",group:"J",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"AUT",viewCode:"AUT",name:"Áustria",group:"J",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"JOR",viewCode:"JOR",name:"Jordânia",group:"J",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"POR",viewCode:"POR",name:"Portugal",group:"K",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"COD",viewCode:"COD",name:"RD Congo",group:"K",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"UZB",viewCode:"UZB",name:"Uzbequistão",group:"K",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"COL",viewCode:"COL",name:"Colômbia",group:"K",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"ENG",viewCode:"ENG",name:"Inglaterra",group:"L",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"CRO",viewCode:"CRO",name:"Croácia",group:"L",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"GHA",viewCode:"GHA",name:"Gana",group:"L",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"PAN",viewCode:"PAN",name:"Panamá",group:"L",rangeMin:1,rangeMax:20,shiny:[1],landscape:[13]},
+  {code:"FWC",viewCode:"FWCH",name:"FWC · History",group:"FIN",rangeMin:9,rangeMax:19,shiny:[],landscape:[]},
+  {code:"CC",viewCode:"CC",name:"Coca-Cola",group:"FIN",rangeMin:1,rangeMax:14,shiny:[],landscape:[]},
+];
+
+const TOTAL=993;
+const CODE_SET=new Set(SECTIONS.map(s=>s.code));
+const ALIASES={"SAU":"KSA","TCH":"CZE","BOS":"BIH","CUR":"CUW","RDC":"COD","HTI":"HAI","HRV":"CRO","SWI":"SUI","SUE":"SWE","DEU":"GER","ALE":"GER","HOL":"NED","DZA":"ALG","MOR":"MAR","IRAN":"IRN","GBR":"ENG","ING":"ENG","SPA":"ESP","PRT":"POR","EUA":"USA","JAP":"JPN","CAT":"QAT","EGI":"EGY","EQU":"ECU","PRY":"PAR","COCA":"CC","COCACOLA":"CC","COKE":"CC","FWCH":"FWC","MUS":"FWC"};
+const STORAGE_KEY='zapstickers_v8';
+
+function resolveCode(r){
+  const u=r.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(CODE_SET.has(u))return u;
+  if(ALIASES[u])return ALIASES[u];
+  return null;
+}
+
+function smartNums(raw,min,max){
+  const nums=[];
+  const parts=raw.replace(/[^\d,\s]/g,'').split(/[\s,]+/).filter(Boolean);
+  for(const p of parts){
+    if(p.length<=2){const n=parseInt(p);if(n>=min&&n<=max)nums.push(n);}
+    else{let i=0;while(i<p.length){if(i<=p.length-2){const two=parseInt(p.slice(i,i+2));if(two>=min&&two<=max){nums.push(two);i+=2;continue;}}const one=parseInt(p[i]);if(one>=min&&one<=9)nums.push(one);i++;}}
+  }
+  return[...new Set(nums)].sort((a,b)=>a-b);
+}
+
+let state={};
+let activeViewCode=null;
+let activeFilter='all';
+
+function load(){
+  const keys=['zapstickers','zapstickers2','zapstickers3','zapstickers4',STORAGE_KEY];
+  for(const k of keys){
+    try{const d=localStorage.getItem(k);if(d){const p=JSON.parse(d);if(Object.keys(p).length>0){state=p;if(k!==STORAGE_KEY){localStorage.setItem(STORAGE_KEY,d);localStorage.removeItem(k);}return;}}}catch(e){}
+  }
+  state={};
+}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
+function key(code,n){return code+':'+n}
+function getS(code,n){return state[key(code,n)]||0}
+function getSec(viewCode){return SECTIONS.find(s=>s.viewCode===viewCode);}
+
+function secHave(viewCode){
+  const sec=getSec(viewCode);if(!sec)return 0;
+  let c=0;for(let i=sec.rangeMin;i<=sec.rangeMax;i++){if(getS(sec.code,i)>=1)c++;}
+  return c;
+}
+function secCount(viewCode){const sec=getSec(viewCode);return sec?sec.rangeMax-sec.rangeMin+1:0;}
+
+function showToast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.color=color||'var(--text)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function cycle(code,n){
+  const k=key(code,n);const c=state[k]||0;
+  if(c===0)state[k]=1;else if(c===1)state[k]=2;else if(c===2)state[k]=3;else delete state[k];
+  save();refreshStk(code,n);updateStats();updateDetailSub();
+  if(document.getElementById('panel-dupes').classList.contains('open'))updateDupesOut();
+}
+
+function stkClass(s,shine,land){
+  return'stk'+(land?' landscape':'')+(shine?' shine':'')+(s===1?' have':s===2?' dupe1':s===3?' dupe2':'');
+}
+
+function refreshStk(code,n){
+  const el=document.getElementById('stk-'+code+'-'+n);if(!el)return;
+  const s=getS(code,n);
+  const sec=SECTIONS.find(x=>x.code===code&&n>=x.rangeMin&&n<=x.rangeMax);
+  const shine=sec&&sec.shiny.includes(n);const land=sec&&sec.landscape.includes(n);
+  el.className=stkClass(s,shine,land);
+  el.querySelector('.stk-ico').textContent=s===1?'✓':s>=2?'★':'';
+  const cnt=el.querySelector('.stk-cnt');
+  if(s===2){cnt.textContent='×1';cnt.style.display='block';}
+  else if(s===3){cnt.textContent='×2+';cnt.style.display='block';}
+  else cnt.style.display='none';
+  applyFilter(el,s);
+}
+
+function applyFilter(el,s){
+  const show=(activeFilter==='all')||(activeFilter==='have'&&s>=1)||(activeFilter==='miss'&&s===0)||(activeFilter==='dupe'&&s>=2);
+  el.classList.toggle('hidden-f',!show);
+}
+
+function setFilter(f){
+  activeFilter=f;
+  ['all','have','miss','dupe'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
+  renderDetail(activeViewCode);
+}
+
+function updateStats(){
+  let have=0,dupe=0;
+  Object.values(state).forEach(v=>{if(v>=1)have++;if(v>=2)dupe++;});
+  document.getElementById('s-have').textContent=have;
+  document.getElementById('s-dupe').textContent=dupe;
+  document.getElementById('s-miss').textContent=TOTAL-have;
+  const pct=Math.round(have/TOTAL*100);
+  document.getElementById('s-pct').textContent=pct+'%';
+  document.getElementById('prog').style.width=pct+'%';
+}
+
+function updateDetailSub(){
+  if(!activeViewCode)return;
+  const have=secHave(activeViewCode);const total=secCount(activeViewCode);
+  document.getElementById('detail-sub').textContent=have+' tenho · '+(total-have)+' faltam';
+}
+
+function renderHome(){
+  const q=(document.getElementById('search-inp').value||'').toLowerCase();
+  const content=document.getElementById('home-content');
+  const groups=[...new Set(SECTIONS.map(s=>s.group))];
+  let html='';
+  groups.forEach(g=>{
+    const secs=SECTIONS.filter(s=>s.group===g&&(!q||s.name.toLowerCase().includes(q)||s.viewCode.toLowerCase().includes(q)||s.code.toLowerCase().includes(q)));
+    if(!secs.length)return;
+    const glabel=g==='★'?'⭐ Especiais':g==='FIN'?'🏁 Final do Álbum':'Grupo '+g;
+    html+=`<div class="group-block"><div class="group-label">${glabel}</div><div class="team-grid">`;
+    secs.forEach(s=>{
+      const have=secHave(s.viewCode);const total=secCount(s.viewCode);
+      const miss=total-have;const pct=Math.round(have/total*100);const done=miss===0;
+      html+=`<div class="team-card" onclick="openDetail('${s.viewCode}')">
+        <div class="team-left"><span class="team-code">${s.viewCode}</span><span class="team-name">${s.name}</span></div>
+        <div class="team-right">
+          <div class="team-prog"><div class="team-prog-f" style="width:${pct}%"></div></div>
+          <span class="team-miss ${done?'done':'pending'}">${done?'✓':miss}</span>
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  content.innerHTML=html||'<p style="color:var(--text2);font-size:13px;padding:12px 0">Nada encontrado.</p>';
+}
+
+function openDetail(viewCode){
+  activeViewCode=viewCode;activeFilter='all';
+  ['all','have','miss','dupe'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x==='all'));
+  document.getElementById('home-view').classList.add('hidden');
+  document.getElementById('detail-view').classList.add('open');
+  const sec=getSec(viewCode);
+  document.getElementById('detail-title').textContent=sec.viewCode+' · '+sec.name;
+  updateDetailSub();renderDetail(viewCode);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goHome(){
+  activeViewCode=null;
+  document.getElementById('detail-view').classList.remove('open');
+  document.getElementById('home-view').classList.remove('hidden');
+  renderHome();window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderDetail(viewCode){
+  const sec=getSec(viewCode);
+  const grid=document.getElementById('stk-grid');grid.innerHTML='';
+  for(let i=sec.rangeMin;i<=sec.rangeMax;i++){
+    const s=getS(sec.code,i);const shine=sec.shiny.includes(i);const land=sec.landscape.includes(i);
+    const d=document.createElement('div');
+    d.className=stkClass(s,shine,land);d.id='stk-'+sec.code+'-'+i;
+    const lbl=shine&&i===1?'brasão':land?'foto time':'';
+    const cntD=s>=2?'block':'none';const cntT=s===2?'×1':'×2+';
+    d.innerHTML=`${shine?'<span class="shine-star">★</span>':''}
+<div class="stk-ico">${s===1?'✓':s>=2?'★':''}</div>
+<div class="stk-num">${sec.code} ${i}</div>
+${lbl?`<div class="stk-lbl">${lbl}</div>`:''}
+<div class="stk-cnt" style="display:${cntD}">${cntT}</div>`;
+    applyFilter(d,s);
+    d.onclick=(()=>{const n=i,c=sec.code;return()=>cycle(c,n)})();
+    grid.appendChild(d);
+  }
+}
+
+function updateDupesOut(){
+  const byCode={};
+  SECTIONS.forEach(s=>{
+    if(!byCode[s.code])byCode[s.code]={full:[],simple:[]};
+    for(let i=s.rangeMin;i<=s.rangeMax;i++){
+      const st=getS(s.code,i);
+      if(st===2){byCode[s.code].full.push(i+'(×1)');byCode[s.code].simple.push(i);}
+      else if(st===3){byCode[s.code].full.push(i+'(×2+)');byCode[s.code].simple.push(i);}
+    }
+  });
+  const fp=[],sp=[];
+  Object.entries(byCode).forEach(([code,{full,simple}])=>{
+    if(full.length)fp.push(code+': '+full.join(', '));
+    if(simple.length)sp.push(code+': '+simple.join(', '));
+  });
+  const nd='Nenhuma repetida marcada ainda.';
+  document.getElementById('dupes-full').textContent=fp.length?fp.join('\n'):nd;
+  document.getElementById('dupes-simple').textContent=sp.length?sp.join('\n'):nd;
+}
+
+function copyText(elId,fbId){
+  const txt=document.getElementById(elId).textContent;
+  if(txt.startsWith('Nenhuma'))return;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const fb=document.getElementById(fbId);fb.textContent='✓ Copiado!';
+    setTimeout(()=>fb.textContent='',2500);
+  }).catch(()=>{document.getElementById(fbId).textContent='Selecione e copie manualmente.';});
+}
+
+function exportJSON(){
+  const data={version:1,exported:new Date().toISOString(),state};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='zapstickers-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✓ Backup exportado!','var(--green)');
+}
+
+function importJSON(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      const imported=data.state||data;
+      if(typeof imported!=='object')throw new Error('formato inválido');
+      state=imported;save();
+      updateStats();renderHome();
+      if(activeViewCode)renderDetail(activeViewCode);
+      showToast('✓ '+Object.keys(state).length+' figurinhas importadas!','var(--green)');
+      document.getElementById('fb-import-json').textContent='✓ Importado!';
+      setTimeout(()=>document.getElementById('fb-import-json').textContent='',3000);
+    }catch(err){
+      showToast('⚠ Arquivo inválido','var(--red)');
+    }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+function importList(){
+  const txt=document.getElementById('import-list-txt').value.trim();
+  if(!txt){showToast('Cole a lista primeiro','var(--orange)');return;}
+  let count=0;
+  txt.split(/\n/).forEach(line=>{
+    line=line.trim();if(!line)return;
+    const m=line.match(/^([A-Za-z]{1,6})\s*[:\-]?\s*(.*)$/);if(!m)return;
+    const code=resolveCode(m[1]);if(!code)return;
+    const rest=m[2];
+    const matches=[...rest.matchAll(/(\d+)\s*\(×(\d+\+?)\)/g)];
+    if(matches.length){
+      matches.forEach(([,num,qty])=>{
+        const n=parseInt(num);
+        const s=qty.includes('2')||qty.includes('+')?3:2;
+        state[key(code,n)]=s;count++;
+      });
+    } else {
+      const sec=SECTIONS.find(s=>s.code===code);if(!sec)return;
+      const nums=smartNums(rest,sec.rangeMin,sec.rangeMax);
+      nums.forEach(n=>{state[key(code,n)]=2;count++;});
+    }
+  });
+  save();updateStats();renderHome();
+  if(activeViewCode)renderDetail(activeViewCode);
+  if(document.getElementById('panel-dupes').classList.contains('open'))updateDupesOut();
+  showToast('✓ '+count+' figurinhas importadas!','var(--green)');
+  document.getElementById('import-list-txt').value='';
+  document.getElementById('fb-import-list').textContent='✓ '+count+' importadas!';
+  setTimeout(()=>document.getElementById('fb-import-list').textContent='',3000);
+}
+
+function resetAll(){
+  if(!confirm('Apagar TODOS os dados? Esta ação não pode ser desfeita.'))return;
+  state={};save();updateStats();renderHome();
+  if(activeViewCode)renderDetail(activeViewCode);
+  showToast('Dados apagados.','var(--red)');
+}
+
+function parseList(txt){
+  const result={};
+  txt.split(/\n/).forEach(line=>{
+    line=line.trim();if(!line)return;
+    const m=line.match(/^([A-Za-z]{1,6})\s*[:\-]?\s*(.*)$/);if(!m)return;
+    const code=resolveCode(m[1]);if(!code)return;
+    const sec=SECTIONS.find(s=>s.code===code);if(!sec)return;
+    const maxN=code==='FWC'?19:sec.rangeMax;
+    const nums=smartNums(m[2]||'',1,maxN);
+    if(nums.length)result[code]=(result[code]||[]).concat(nums);
+  });
+  return result;
+}
+
+function compareFriend(){
+  const txt=document.getElementById('friend-input').value.trim();
+  if(!txt){document.getElementById('friend-result').innerHTML='<p style="font-size:12px;color:var(--text2);margin-top:8px">Cole a lista do amigo acima.</p>';return;}
+  const needs=parseList(txt);
+  let give=[],notHave=[],unknown=[];
+  Object.keys(needs).forEach(code=>{
+    if(!CODE_SET.has(code)){unknown.push(code);return;}
+    needs[code].forEach(n=>{(getS(code,n)>=2?give:notHave).push(code+'-'+n);});
+  });
+  let html='<div style="margin-top:12px">';
+  if(give.length)html+=`<span class="badge g">✓ Você tem de repetida (${give.length})</span><div class="rlist" style="color:var(--green)">${give.join('  ')}</div>`;
+  if(notHave.length)html+=`<span class="badge r">✕ Você não tem (${notHave.length})</span><div class="rlist">${notHave.join('  ')}</div>`;
+  if(unknown.length)html+=`<span class="badge o">⚠ Não reconhecidos: ${unknown.join(', ')}</span>`;
+  if(!give.length&&!notHave.length&&!unknown.length)html+='<p style="font-size:12px;color:var(--text2)">Nada reconhecido.</p>';
+  html+='</div>';
+  document.getElementById('friend-result').innerHTML=html;
+}
+
+function togglePanel(p){
+  ['dupes','friend','backup'].forEach(x=>{
+    const el=document.getElementById('panel-'+x);
+    if(x===p)el.classList.toggle('open');else el.classList.remove('open');
+  });
+  const el=document.getElementById('panel-'+p);
+  if(el.classList.contains('open')){
+    if(p==='dupes')updateDupesOut();
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+load();updateStats();renderHome();
+</script>
+</body>
+</html>
