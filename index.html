@@ -2,12 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Zap Stickers">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A0A0A">
-<title>Zap Stickers · Copa 2026</title>
+<title>Zap Stickers — Copa 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📒</text></svg>">
+
+<!-- PWA: permite adicionar à tela inicial no iOS/Android -->
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiWmFwIFN0aWNrZXJzIiwic2hvcnRfbmFtZSI6IlphcCBTdGlja2VycyIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBBMEEwQSIsInRoZW1lX2NvbG9yIjoiIzBBMEEwQSJ9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zap Stickers">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -20,8 +25,9 @@
   --red:#FF1744;--redbg:#2A0009;
   --blue:#42A5F5;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
-.app{max-width:680px;margin:0 auto;padding:12px;min-height:100vh;background:var(--bg)}
+html,body{background:var(--bg)}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);-webkit-tap-highlight-color:transparent}
+.app{max-width:680px;margin:0 auto;padding:14px;min-height:100vh;background:var(--bg);padding-bottom:40px}
 .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .hdr-title{display:flex;align-items:center;gap:8px}
 .hdr-title h1{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.4px}
@@ -37,7 +43,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-
 .panel-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .panel-hdr h2{font-size:14px;font-weight:600;color:var(--text)}
 .panel-hdr button{background:none;border:none;cursor:pointer;color:var(--text2);font-size:18px;line-height:1;padding:0}
-.txt-out{background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.7;max-height:160px;overflow-y:auto;margin-bottom:8px;border:1px solid var(--border);font-family:monospace}
+.txt-out{background:var(--bg3);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.7;max-height:160px;overflow-y:auto;margin-bottom:8px;border:1px solid var(--border);font-family:ui-monospace,Menlo,monospace}
 .textarea{width:100%;min-height:90px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:12px;font-family:system-ui;color:var(--text);background:var(--bg3);resize:vertical;margin-bottom:10px}
 .textarea:focus{outline:none;border-color:var(--blue)}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
@@ -110,19 +116,26 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:system-
 .btn.danger{border-color:#5a1a1a;color:var(--red)}
 .btn.danger:hover{background:#1a0000}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.footer-back{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(transparent,var(--bg) 40%);display:flex;justify-content:center;margin-top:8px}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.pagenav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.pagenav-btn{flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;transition:all .15s;min-width:0}
+.pagenav-btn:hover{background:var(--bg3);border-color:var(--border2)}
+.pagenav-btn:disabled{opacity:.3;cursor:not-allowed}
+.pagenav-btn.next{flex-direction:row-reverse;text-align:right}
+.pagenav-arrow{font-size:16px;color:var(--text2);flex-shrink:0}
+.pagenav-info{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.pagenav-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+.pagenav-code{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.footer-back{display:flex;justify-content:center;margin-top:10px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .toast.show{opacity:1}
-code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
+code{font-family:ui-monospace,Menlo,monospace}
 </style>
 </head>
 <body>
+
 <div class="app">
 <div class="hdr">
-  <div class="hdr-title">
-    <span style="font-size:22px">📒</span>
-    <h1>Zap Stickers</h1>
-  </div>
+  <div class="hdr-title"><span style="font-size:22px">📒</span><h1>Zap Stickers</h1></div>
   <div class="hdr-btns">
     <button class="btn sm" onclick="togglePanel('dupes')">📋 Repetidas</button>
     <button class="btn sm" onclick="togglePanel('friend')">👥 Amigo</button>
@@ -138,25 +151,15 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
 </div>
 <div class="prog"><div class="prog-f" id="prog" style="width:0%"></div></div>
 
-<!-- PANEL REPETIDAS -->
 <div class="panel" id="panel-dupes">
   <div class="panel-hdr"><h2>📋 Minhas repetidas</h2><button onclick="togglePanel('dupes')">✕</button></div>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:6px">Lista completa (com quantidade)</p>
   <div class="txt-out" id="dupes-full">Nenhuma repetida marcada ainda.</div>
-  <div class="row" style="margin-bottom:12px">
-    <button class="btn primary sm" onclick="copyText('dupes-full','fb-full')">📎 Copiar completa</button>
-    <div class="fb" id="fb-full"></div>
-  </div>
-  <div class="divider"></div>
-  <p style="font-size:11px;color:var(--text2);margin:10px 0 6px">Lista simples pra WhatsApp</p>
-  <div class="txt-out" id="dupes-simple">Nenhuma repetida marcada ainda.</div>
   <div class="row">
-    <button class="btn primary sm" onclick="copyText('dupes-simple','fb-simple')">📎 Copiar pra WhatsApp</button>
-    <div class="fb" id="fb-simple"></div>
+    <button class="btn primary sm" onclick="copyText('dupes-full','fb-full')">📎 Copiar pra WhatsApp</button>
+    <div class="fb" id="fb-full"></div>
   </div>
 </div>
 
-<!-- PANEL AMIGO -->
 <div class="panel" id="panel-friend">
   <div class="panel-hdr"><h2>👥 Lista do amigo</h2><button onclick="togglePanel('friend')">✕</button></div>
   <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Cole a lista que seu amigo mandou. O app interpreta automaticamente, mesmo com erros de digitação.</p>
@@ -165,30 +168,34 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
   <div id="friend-result"></div>
 </div>
 
-<!-- PANEL BACKUP -->
 <div class="panel" id="panel-backup">
   <div class="panel-hdr"><h2>💾 Backup</h2><button onclick="togglePanel('backup')">✕</button></div>
 
   <p style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px">📤 Exportar</p>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Salva todos os seus dados em um arquivo JSON. Faça isso antes de qualquer atualização.</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Baixa um arquivo .json com todos os seus dados. Guarde num lugar seguro (Drive, WhatsApp pra você mesmo, etc).</p>
   <div class="row" style="margin-bottom:14px">
-    <button class="btn primary" onclick="exportJSON()">📤 Exportar JSON</button>
+    <button class="btn primary" onclick="exportJSON()">📤 Baixar backup (.json)</button>
     <div class="fb" id="fb-export"></div>
   </div>
 
   <div class="divider"></div>
   <p style="font-size:12px;font-weight:600;color:var(--text);margin:10px 0 6px">📥 Importar JSON</p>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Restaura um backup exportado anteriormente. <strong style="color:var(--red)">Sobrescreve todos os dados atuais.</strong></p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Restaura um backup exportado anteriormente. <strong style="color:var(--red)">Sobrescreve os dados atuais.</strong></p>
+  <div class="row" style="margin-bottom:8px">
+    <button class="btn" onclick="document.getElementById('import-json-file').click()">📂 Escolher arquivo .json</button>
+    <input type="file" id="import-json-file" accept=".json,application/json" style="display:none" onchange="importJSONFile(this)">
+  </div>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:6px">ou cole o conteúdo do JSON abaixo:</p>
+  <textarea class="textarea" id="import-json-txt" placeholder='{"version":1,"state":{...}}'></textarea>
   <div class="row" style="margin-bottom:14px">
-    <button class="btn" onclick="document.getElementById('import-json-file').click()">📂 Escolher arquivo JSON</button>
-    <input type="file" id="import-json-file" accept=".json" style="display:none" onchange="importJSON(this)">
+    <button class="btn primary" onclick="importJSONText()">📥 Importar texto colado</button>
     <div class="fb" id="fb-import-json"></div>
   </div>
 
   <div class="divider"></div>
   <p style="font-size:12px;font-weight:600;color:var(--text);margin:10px 0 6px">📋 Importar lista de repetidas</p>
-  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Cole a lista no formato <code>BRA: 2(×1), 6(×2+)</code> — marca automaticamente como repetidas.</p>
-  <textarea class="textarea" id="import-list-txt" placeholder="RSA: 3(×2+), 7(×1)&#10;CAN: 11(×1), 12(×1)&#10;BRA: 2(×1)&#10;..."></textarea>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Cole a lista no formato <code style="background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px">BRA: 2, 6, 9</code> — marca como repetidas ×1.</p>
+  <textarea class="textarea" id="import-list-txt" placeholder="RSA: 3, 7&#10;CAN: 11, 12&#10;..."></textarea>
   <div class="row" style="margin-bottom:14px">
     <button class="btn primary" onclick="importList()">✅ Importar lista</button>
     <div class="fb" id="fb-import-list"></div>
@@ -199,7 +206,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
   <button class="btn danger" onclick="resetAll()">🗑 Apagar todos os dados</button>
 </div>
 
-<!-- HOME -->
 <div class="home" id="home-view">
   <div class="toolbar">
     <input class="search" type="text" placeholder="Buscar seleção..." id="search-inp" oninput="renderHome()">
@@ -207,7 +213,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
   <div id="home-content"></div>
 </div>
 
-<!-- DETAIL -->
 <div class="detail" id="detail-view">
   <div class="detail-hdr">
     <button class="back-btn" onclick="goHome()">← Voltar</button>
@@ -227,8 +232,25 @@ code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-size:11px}
     <div class="leg-i"><div class="leg-d" style="background:var(--goldbg);border:1.5px solid var(--goldbd)"></div>Brilhante</div>
   </div>
   <div class="grid" id="stk-grid"></div>
+
+  <div class="pagenav">
+    <button class="pagenav-btn prev" id="nav-prev" onclick="navTo(-1)">
+      <span class="pagenav-arrow">←</span>
+      <div class="pagenav-info">
+        <span class="pagenav-label">Anterior</span>
+        <span class="pagenav-code" id="nav-prev-code">—</span>
+      </div>
+    </button>
+    <button class="pagenav-btn next" id="nav-next" onclick="navTo(1)">
+      <span class="pagenav-arrow">→</span>
+      <div class="pagenav-info">
+        <span class="pagenav-label">Próxima</span>
+        <span class="pagenav-code" id="nav-next-code">—</span>
+      </div>
+    </button>
+  </div>
   <div class="footer-back">
-    <button class="back-btn" onclick="goHome()">← Voltar para seleções</button>
+    <button class="back-btn" onclick="goHome()">← Voltar a seleções</button>
   </div>
 </div>
 
@@ -293,7 +315,8 @@ const SECTIONS=[
 const TOTAL=993;
 const CODE_SET=new Set(SECTIONS.map(s=>s.code));
 const ALIASES={"SAU":"KSA","TCH":"CZE","BOS":"BIH","CUR":"CUW","RDC":"COD","HTI":"HAI","HRV":"CRO","SWI":"SUI","SUE":"SWE","DEU":"GER","ALE":"GER","HOL":"NED","DZA":"ALG","MOR":"MAR","IRAN":"IRN","GBR":"ENG","ING":"ENG","SPA":"ESP","PRT":"POR","EUA":"USA","JAP":"JPN","CAT":"QAT","EGI":"EGY","EQU":"ECU","PRY":"PAR","COCA":"CC","COCACOLA":"CC","COKE":"CC","FWCH":"FWC","MUS":"FWC"};
-const STORAGE_KEY='zapstickers_v8';
+
+const STORAGE_KEY='zapstickers_data';
 
 function resolveCode(r){
   const u=r.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
@@ -301,7 +324,6 @@ function resolveCode(r){
   if(ALIASES[u])return ALIASES[u];
   return null;
 }
-
 function smartNums(raw,min,max){
   const nums=[];
   const parts=raw.replace(/[^\d,\s]/g,'').split(/[\s,]+/).filter(Boolean);
@@ -317,22 +339,17 @@ let activeViewCode=null;
 let activeFilter='all';
 
 function load(){
-  const keys=['zapstickers','zapstickers2','zapstickers3','zapstickers4',STORAGE_KEY];
-  for(const k of keys){
-    try{const d=localStorage.getItem(k);if(d){const p=JSON.parse(d);if(Object.keys(p).length>0){state=p;if(k!==STORAGE_KEY){localStorage.setItem(STORAGE_KEY,d);localStorage.removeItem(k);}return;}}}catch(e){}
-  }
+  try{
+    const d=localStorage.getItem(STORAGE_KEY);
+    if(d){state=JSON.parse(d);return;}
+  }catch(e){}
   state={};
 }
 function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
 function key(code,n){return code+':'+n}
 function getS(code,n){return state[key(code,n)]||0}
 function getSec(viewCode){return SECTIONS.find(s=>s.viewCode===viewCode);}
-
-function secHave(viewCode){
-  const sec=getSec(viewCode);if(!sec)return 0;
-  let c=0;for(let i=sec.rangeMin;i<=sec.rangeMax;i++){if(getS(sec.code,i)>=1)c++;}
-  return c;
-}
+function secHave(viewCode){const sec=getSec(viewCode);if(!sec)return 0;let c=0;for(let i=sec.rangeMin;i<=sec.rangeMax;i++){if(getS(sec.code,i)>=1)c++;}return c;}
 function secCount(viewCode){const sec=getSec(viewCode);return sec?sec.rangeMax-sec.rangeMin+1:0;}
 
 function showToast(msg,color){
@@ -347,11 +364,7 @@ function cycle(code,n){
   save();refreshStk(code,n);updateStats();updateDetailSub();
   if(document.getElementById('panel-dupes').classList.contains('open'))updateDupesOut();
 }
-
-function stkClass(s,shine,land){
-  return'stk'+(land?' landscape':'')+(shine?' shine':'')+(s===1?' have':s===2?' dupe1':s===3?' dupe2':'');
-}
-
+function stkClass(s,shine,land){return'stk'+(land?' landscape':'')+(shine?' shine':'')+(s===1?' have':s===2?' dupe1':s===3?' dupe2':'');}
 function refreshStk(code,n){
   const el=document.getElementById('stk-'+code+'-'+n);if(!el)return;
   const s=getS(code,n);
@@ -365,18 +378,15 @@ function refreshStk(code,n){
   else cnt.style.display='none';
   applyFilter(el,s);
 }
-
 function applyFilter(el,s){
   const show=(activeFilter==='all')||(activeFilter==='have'&&s>=1)||(activeFilter==='miss'&&s===0)||(activeFilter==='dupe'&&s>=2);
   el.classList.toggle('hidden-f',!show);
 }
-
 function setFilter(f){
   activeFilter=f;
   ['all','have','miss','dupe'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===f));
   renderDetail(activeViewCode);
 }
-
 function updateStats(){
   let have=0,dupe=0;
   Object.values(state).forEach(v=>{if(v>=1)have++;if(v>=2)dupe++;});
@@ -387,7 +397,6 @@ function updateStats(){
   document.getElementById('s-pct').textContent=pct+'%';
   document.getElementById('prog').style.width=pct+'%';
 }
-
 function updateDetailSub(){
   if(!activeViewCode)return;
   const have=secHave(activeViewCode);const total=secCount(activeViewCode);
@@ -420,6 +429,23 @@ function renderHome(){
   content.innerHTML=html||'<p style="color:var(--text2);font-size:13px;padding:12px 0">Nada encontrado.</p>';
 }
 
+function navTo(dir){
+  const idx=SECTIONS.findIndex(s=>s.viewCode===activeViewCode);
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=SECTIONS.length)return;
+  openDetail(SECTIONS[newIdx].viewCode);
+}
+
+function updatePageNav(){
+  const idx=SECTIONS.findIndex(s=>s.viewCode===activeViewCode);
+  const prev=SECTIONS[idx-1];const next=SECTIONS[idx+1];
+  const prevBtn=document.getElementById('nav-prev');const nextBtn=document.getElementById('nav-next');
+  if(prev){prevBtn.disabled=false;document.getElementById('nav-prev-code').textContent=prev.viewCode;}
+  else{prevBtn.disabled=true;document.getElementById('nav-prev-code').textContent='—';}
+  if(next){nextBtn.disabled=false;document.getElementById('nav-next-code').textContent=next.viewCode;}
+  else{nextBtn.disabled=true;document.getElementById('nav-next-code').textContent='—';}
+}
+
 function openDetail(viewCode){
   activeViewCode=viewCode;activeFilter='all';
   ['all','have','miss','dupe'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x==='all'));
@@ -427,7 +453,7 @@ function openDetail(viewCode){
   document.getElementById('detail-view').classList.add('open');
   const sec=getSec(viewCode);
   document.getElementById('detail-title').textContent=sec.viewCode+' · '+sec.name;
-  updateDetailSub();renderDetail(viewCode);
+  updateDetailSub();renderDetail(viewCode);updatePageNav();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -435,7 +461,9 @@ function goHome(){
   activeViewCode=null;
   document.getElementById('detail-view').classList.remove('open');
   document.getElementById('home-view').classList.remove('hidden');
-  renderHome();window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('search-inp').value='';
+  renderHome();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function renderDetail(viewCode){
@@ -445,7 +473,7 @@ function renderDetail(viewCode){
     const s=getS(sec.code,i);const shine=sec.shiny.includes(i);const land=sec.landscape.includes(i);
     const d=document.createElement('div');
     d.className=stkClass(s,shine,land);d.id='stk-'+sec.code+'-'+i;
-    const lbl=shine&&i===1?'brasão':land?'foto time':'';
+    let lbl=shine&&i===1?'brasão':land?'foto time':'';
     const cntD=s>=2?'block':'none';const cntT=s===2?'×1':'×2+';
     d.innerHTML=`${shine?'<span class="shine-star">★</span>':''}
 <div class="stk-ico">${s===1?'✓':s>=2?'★':''}</div>
@@ -461,26 +489,21 @@ ${lbl?`<div class="stk-lbl">${lbl}</div>`:''}
 function updateDupesOut(){
   const byCode={};
   SECTIONS.forEach(s=>{
-    if(!byCode[s.code])byCode[s.code]={full:[],simple:[]};
+    if(!byCode[s.code])byCode[s.code]=[];
     for(let i=s.rangeMin;i<=s.rangeMax;i++){
-      const st=getS(s.code,i);
-      if(st===2){byCode[s.code].full.push(i+'(×1)');byCode[s.code].simple.push(i);}
-      else if(st===3){byCode[s.code].full.push(i+'(×2+)');byCode[s.code].simple.push(i);}
+      if(getS(s.code,i)>=2)byCode[s.code].push(i);
     }
   });
-  const fp=[],sp=[];
-  Object.entries(byCode).forEach(([code,{full,simple}])=>{
-    if(full.length)fp.push(code+': '+full.join(', '));
-    if(simple.length)sp.push(code+': '+simple.join(', '));
+  const parts=[];
+  Object.entries(byCode).forEach(([code,nums])=>{
+    if(nums.length)parts.push(code+': '+nums.join(', '));
   });
-  const nd='Nenhuma repetida marcada ainda.';
-  document.getElementById('dupes-full').textContent=fp.length?fp.join('\n'):nd;
-  document.getElementById('dupes-simple').textContent=sp.length?sp.join('\n'):nd;
+  document.getElementById('dupes-full').textContent=parts.length?parts.join('\n'):'Nenhuma repetida marcada ainda.';
 }
 
 function copyText(elId,fbId){
   const txt=document.getElementById(elId).textContent;
-  if(txt.startsWith('Nenhuma'))return;
+  if(!txt||txt.startsWith('Nenhuma'))return;
   navigator.clipboard.writeText(txt).then(()=>{
     const fb=document.getElementById(fbId);fb.textContent='✓ Copiado!';
     setTimeout(()=>fb.textContent='',2500);
@@ -492,35 +515,54 @@ function exportJSON(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;
-  a.download='zapstickers-backup-'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href=url;a.download='zapstickers-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('✓ Backup exportado!','var(--green)');
+  showToast('✓ Backup baixado!','var(--green)');
+  document.getElementById('fb-export').textContent='✓ Baixado!';
+  setTimeout(()=>document.getElementById('fb-export').textContent='',3000);
 }
 
-function importJSON(input){
+function applyImportedData(raw){
+  const data=JSON.parse(raw);
+  const imported=data.state||data;
+  if(typeof imported!=='object')throw new Error('formato inválido');
+  state=imported;save();updateStats();renderHome();
+  if(activeViewCode)renderDetail(activeViewCode);
+  if(document.getElementById('panel-dupes').classList.contains('open'))updateDupesOut();
+}
+
+function importJSONFile(input){
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      const data=JSON.parse(e.target.result);
-      const imported=data.state||data;
-      if(typeof imported!=='object')throw new Error('formato inválido');
-      state=imported;save();
-      updateStats();renderHome();
-      if(activeViewCode)renderDetail(activeViewCode);
-      showToast('✓ '+Object.keys(state).length+' figurinhas importadas!','var(--green)');
+      applyImportedData(e.target.result);
+      showToast('✓ Backup importado!','var(--green)');
       document.getElementById('fb-import-json').textContent='✓ Importado!';
       setTimeout(()=>document.getElementById('fb-import-json').textContent='',3000);
     }catch(err){
       showToast('⚠ Arquivo inválido','var(--red)');
+      document.getElementById('fb-import-json').textContent='⚠ Arquivo inválido.';
     }
     input.value='';
   };
   reader.readAsText(file);
+}
+
+function importJSONText(){
+  const txt=document.getElementById('import-json-txt').value.trim();
+  if(!txt){showToast('Cole o JSON primeiro','var(--orange)');return;}
+  try{
+    applyImportedData(txt);
+    showToast('✓ Backup importado!','var(--green)');
+    document.getElementById('fb-import-json').textContent='✓ Importado!';
+    document.getElementById('import-json-txt').value='';
+    setTimeout(()=>document.getElementById('fb-import-json').textContent='',3000);
+  }catch(err){
+    showToast('⚠ JSON inválido','var(--red)');
+    document.getElementById('fb-import-json').textContent='⚠ JSON inválido.';
+  }
 }
 
 function importList(){
@@ -531,19 +573,10 @@ function importList(){
     line=line.trim();if(!line)return;
     const m=line.match(/^([A-Za-z]{1,6})\s*[:\-]?\s*(.*)$/);if(!m)return;
     const code=resolveCode(m[1]);if(!code)return;
-    const rest=m[2];
-    const matches=[...rest.matchAll(/(\d+)\s*\(×(\d+\+?)\)/g)];
-    if(matches.length){
-      matches.forEach(([,num,qty])=>{
-        const n=parseInt(num);
-        const s=qty.includes('2')||qty.includes('+')?3:2;
-        state[key(code,n)]=s;count++;
-      });
-    } else {
-      const sec=SECTIONS.find(s=>s.code===code);if(!sec)return;
-      const nums=smartNums(rest,sec.rangeMin,sec.rangeMax);
-      nums.forEach(n=>{state[key(code,n)]=2;count++;});
-    }
+    const sec=SECTIONS.find(s=>s.code===code);if(!sec)return;
+    const maxN=code==='FWC'?19:sec.rangeMax;
+    const nums=smartNums(m[2]||'',1,maxN);
+    nums.forEach(n=>{state[key(code,n)]=2;count++;});
   });
   save();updateStats();renderHome();
   if(activeViewCode)renderDetail(activeViewCode);
@@ -594,7 +627,8 @@ function compareFriend(){
 }
 
 function togglePanel(p){
-  ['dupes','friend','backup'].forEach(x=>{
+  const panels=['dupes','friend','backup'];
+  panels.forEach(x=>{
     const el=document.getElementById('panel-'+x);
     if(x===p)el.classList.toggle('open');else el.classList.remove('open');
   });
